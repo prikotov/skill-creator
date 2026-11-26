@@ -11,12 +11,11 @@ README — установка, устройство и справочник.
 
 ## Зачем это нужно
 
-Скиллы накапливались из разных источников: инструкция SKILL-CREATION
-(шаги и опции), тред о внутреннем опыте Anthropic (gotchas, progressive
-disclosure). Наши зрелые скиллы синтезировали оба подхода на практике —
-web-research-fallback, moex-site-core, cbr-core. Этот репо фиксирует
-получившийся стандарт, чтобы новые скиллы не переизобретали его и не
-расходились со старыми.
+Скиллы накапливались, и правило «когда → как → результат» из инструкции
+SKILL-CREATION.md на практике обросло дополнениями: что писать в каждый
+раздел, что в SKILL.md не писать, как оформить репо. Web-research-fallback,
+moex-site-core и cbr-core прошли этот путь. Этот репо фиксирует стандарт,
+чтобы новые скиллы не переизобретали его.
 
 - **Каркас за секунду** — `new.php` разворачивает SKILL/README/AGENTS/LICENSE/
   CI/tests/клиент/скрипт с плейсхолдерами и списком, что заполнить.
@@ -31,7 +30,7 @@ web-research-fallback, moex-site-core, cbr-core. Этот репо фиксир�
 | `SKILL.md` | Правила скиллов, чеклист проверки, опции `new.php` |
 | `scripts/new.php` | Разворачивает каркас репо скилла из шаблонов |
 | `assets/*.template.*` | Шаблоны SKILL.md, README.md, AGENTS.md, CI |
-| `references/rules.md` | Источники стандарта: SKILL-CREATION, Anthropic-тред, наши скиллы |
+| `references/rules.md` | Основа — SKILL-CREATION.md; что добавлено практикой; таблица «SKILL или README» |
 
 ## Зависимости
 
@@ -110,7 +109,7 @@ php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
   их заполняет агент по правилам из SKILL.md.
 - Сгенерированный каркас сразу проходит `php -l` и `tests/run.php` —
   заготовки клиента и тестов рабочие, не пустышки.
-- Стандарт и его источники — [references/rules.md](references/rules.md).
+- Стандарт — [references/rules.md](references/rules.md).
 
 ## Правила
 
@@ -120,7 +119,7 @@ php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
 - Новые правила скиллов добавлять в SKILL.md этого репо, а не плодить
   частные инструкции в проектах.
 
-Подробнее — [SKILL.md](SKILL.md), источники стандарта — [references/rules.md](references/rules.md).
+Подробнее — [SKILL.md](SKILL.md), основа и дополнения — [references/rules.md](references/rules.md).
 
 ## Лицензия
 
