@@ -51,8 +51,8 @@ check(count($d['placeholders_left'] ?? []) > 0, 'new: плейсхолдеры �
 $readme = (string)file_get_contents($dir . '/README.md');
 check(str_contains($readme, 'skill для AI-агентов'), 'new: README говорит, что это skill');
 check(!str_contains((string)file_get_contents($dir . '/SKILL.md'), '{{name}}'), 'new: name подставлен');
-check(str_contains($readme, 'scripts/main.php'), 'new: блок скрипта раскрыт в README');
-check(!str_contains($readme, '{{#scripts}}'), 'new: маркеры блока убраны');
+check(!str_contains($readme, 'scripts/main.php'), 'new: README без ручного запуска скриптов (это в SKILL.md)');
+check(str_contains((string)file_get_contents($dir . '/SKILL.md'), 'scripts/main.php'), 'new: блок скрипта раскрыт в SKILL.md');
 foreach (['DemoSkillClient.php', 'scripts/main.php', 'tests/run.php'] as $f) {
     check(lintOk($dir . '/' . $f), "carcass: php -l {$f}");
 }
