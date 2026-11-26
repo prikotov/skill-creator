@@ -2,7 +2,7 @@
 /**
  * skill-creator: каркас нового скилла.
  *
- *   php scripts/new.php --name my-skill [--dir /path] [--title ".."] [--description ".."]
+ *   php scripts/create.php --name my-skill --dir /path/to/my-skill [--title ".."] [--description ".."]
  *       [--owner prikotov] [--license MIT|none|SPDX-ID] [--script name1] [--script name2]...
  *
  * Скрипты не обязательны: скилл может быть только инструкцией. Каждый
@@ -73,13 +73,11 @@ $opt = argv($argv);
 $name = $opt['name'] ?? '';
 $dir = $opt['dir'] ?? '';
 if (!preg_match('~^[a-z0-9]+(-[a-z0-9]+)*$~', $name)) {
-    fail('usage: php scripts/new.php --name kebab-case-name [--dir /path] [--title ..] [--description ..] [--script name]...');
+    fail('usage: php scripts/create.php --name kebab-case-name --dir /path/to/repo [--title ..] [--description ..] [--script name]...');
 }
+// --dir обязателен: дефолта нет, каркас не раскладывается «куда попало»
 if ($dir === '') {
-    $dir = dirname(ROOT, 2) . '/' . $name;
-}
-if (is_dir($dir) && count(scandir($dir)) > 2) {
-    fail("каталог не пуст: {$dir}");
+    fail("--dir обязателен: каталог нового репо, например --dir /path/to/{$name}");
 }
 
 $title = $opt['title'] ?? ucwords(str_replace('-', ' ', $name));
@@ -96,6 +94,18 @@ foreach ($rawScripts as $rs) {
 }
 $client = implode('', array_map(fn($p) => ucfirst($p), explode('-', $name))) . 'Client';
 
+// все аргументы проверены — цель должна создаться и быть доступна на запись,
+// иначе отказ до генерации файлов (не «ok: true» без файлов)
+if (!is_dir($dir) && !@mkdir($dir, 0777, true)) {
+    fail("каталог не создать: {$dir}");
+}
+if (!is_writable($dir)) {
+    fail("каталог не доступен на запись: {$dir}");
+}
+if (count(scandir($dir)) > 2) {
+    fail("каталог не пуст: {$dir}");
+}
+
 $map = [
     '{{name}}' => $name,
     '{{Title}}' => $title,
@@ -108,8 +118,12 @@ $map = [
 $created = [];
 $put = function (string $rel, string $text) use ($dir, &$created): void {
     $out = $dir . '/' . $rel;
-    @mkdir(dirname($out), 0777, true);
-    file_put_contents($out, $text);
+    if (!is_dir(dirname($out)) && !@mkdir(dirname($out), 0777, true)) {
+        fail("каталог не создать: " . dirname($out));
+    }
+    if (file_put_contents($out, $text) === false) {
+        fail("файл не записан: {$out}");
+    }
     $created[] = $rel;
 };
 

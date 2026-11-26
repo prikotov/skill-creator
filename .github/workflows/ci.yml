@@ -18,7 +18,7 @@ jobs:
           extensions: curl
       - name: Check PHP syntax
         run: |
-          php -l scripts/new.php
+          php -l scripts/create.php
           php -l tests/run.php
       - name: Run offline tests
         run: php tests/run.php
