@@ -1,8 +1,8 @@
-# От SKILL-CREATION.md к стандарту skill-creator
+# От SKILL-CREATION.md к skill-creator
 
 Основа — `TInvestSkills/docs/SKILL-CREATION.md` (инструкция по созданию
 навыков). Skill-creator переносит её в skill и дополняет тем, что накопилось
-на практике в web-research-fallback, moex-site-core, cbr-core.
+в web-research-fallback, moex-site-core, cbr-core.
 
 ## Что взято из SKILL-CREATION.md без изменений
 
