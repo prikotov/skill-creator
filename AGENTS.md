@@ -15,7 +15,7 @@
 ```
 scripts/new.php      — каркас: подстановка плейсхолдеров, заготовки клиента/скрипта/тестов
 assets/*.template.*  — SKILL.md, README.md, AGENTS.md, CI (плейсхолдеры {{…}})
-references/rules.md  — источники стандарта, что взято/не взято, таблица «SKILL или README»
+references/rules.md  — основа SKILL-CREATION.md, что добавлено практикой, таблица «SKILL или README»
 tests/run.php        — каркас во временном каталоге: файлы, php -l, тесты каркаса
 ```
 
