@@ -27,13 +27,15 @@ SKILL (навык) — переносимый модуль (инструкции
 Пути — от каталога с SKILL.md.
 
 ```bash
-# Новый скилл в ~/MyProjects/<name>; что делает скрипт — заглушка
-php scripts/new.php --name moex-site-core
+# Скилл-инструкция без скриптов: только SKILL.md, README, тесты структуры
+php scripts/new.php --name prompt-review
 
-# Явный каталог, заголовок, описание для модели, имя скрипта и что он делает
+# Скилл с двумя скриптами: по шагу на скрипт, общий клиент, CI
+php scripts/new.php --name moex-site-core --script map --script search
+
+# Явный каталог, заголовок, описание для модели
 php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
-  --title "CBR Core" --description "Сайт и API ЦБ: карта, поиск, ОРФР" \
-  --script orfr --what "чистые ряды из выпусков ОРФР в CSV"
+  --title "CBR Core" --description "Сайт и API ЦБ: карта, поиск, ОРФР" --script orfr
 ```
 
 ### Опции new.php
@@ -44,8 +46,7 @@ php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
 | `--dir` | Каталог репо | путь | `~/MyProjects/<name>` |
 | `--title` | Заголовок `# …` | строка | Name Case из name |
 | `--description` | Описание скилла для модели (frontmatter) | строка | заглушка |
-| `--what` | Что делает скрипт: попадает в заголовок скрипта в SKILL/README/AGENTS и docblock | строка | «что делает скрипт» |
-| `--script` | Имя основного скрипта в `scripts/` | kebab-case | `main` |
+| `--script` | Имя скрипта; повторяется для каждого. Без него — скилл без кода | kebab-case | нет |
 | `--owner` | Владелец GitHub (URL в README) | логин | `prikotov` |
 
 ## Результат
@@ -56,6 +57,7 @@ stdout — JSON; ошибки — в stderr. Код выхода 0/1.
 |------|------------|
 | `ok` | Каркас создан |
 | `dir` | Каталог репо |
+| `scripts[]` | Имена скриптов (пусто, если скилл без кода) |
 | `files[]` | Созданные файлы |
 | `placeholders_left` | Плейсхолдеры `{{…}}` по файлам — их заполнить руками |
 | `next[]` | Что делать дальше по шагам |
@@ -106,7 +108,8 @@ license: MIT
 
 ### Шаг
 
-Один скрипт — один шаг. Шаг содержит:
+Один скрипт — один шаг; скилл без скриптов — только разделы-инструкции.
+Шаг содержит:
 
 1. **Инструкция** — что нужно сделать агенту.
 2. **Команда** — синтаксис вызова.

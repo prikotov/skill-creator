@@ -18,7 +18,7 @@ frontmatter, разделы, формат шага, чеклист. На пра�
 этот путь). Скрипт `new.php` разворачивает каркас по этим правилам.
 
 - **Каркас за секунду** — `new.php` разворачивает SKILL/README/AGENTS/LICENSE/
-  CI/tests/клиент/скрипт с плейсхолдерами и списком, что заполнить.
+  CI/tests, а если указаны скрипты — общий клиент и по заготовке на скрипт.
 - **Единые правила** — что писать в SKILL.md (навык для модели), что в README
   (устройство для человека), что в `references/` (механика).
 - **Проверка чеклистом** — ревизия старых и чужих скиллов на соответствие.
@@ -28,7 +28,7 @@ frontmatter, разделы, формат шага, чеклист. На пра�
 | Файл | Что делает |
 |------|------------|
 | `SKILL.md` | Правила скиллов, чеклист проверки, опции `new.php` |
-| `scripts/new.php` | Разворачивает каркас репо скилла из шаблонов |
+| `scripts/new.php` | Разворачивает каркас репо скилла из шаблонов; скрипты — по `--script`, 0 или много |
 | `assets/*.template.*` | Шаблоны SKILL.md, README.md, AGENTS.md, CI |
 | `references/rules.md` | Что взято из инструкции по созданию SKILL, что добавлено практикой; таблица «SKILL или README» |
 
@@ -57,13 +57,15 @@ ln -s /path/to/skill-creator .agents/skills/skill-creator
 ### new.php — каркас нового скилла
 
 ```bash
-# Скилл в ~/MyProjects/<name>
-php scripts/new.php --name my-api-core
+# Скилл-инструкция без скриптов
+php scripts/new.php --name prompt-review
 
-# Явный каталог, заголовок, описание для модели, имя скрипта и что он делает
+# Скилл с двумя скриптами
+php scripts/new.php --name moex-site-core --script map --script search
+
+# Явный каталог, заголовок, описание для модели
 php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
-  --title "CBR Core" --description "Сайт и API ЦБ: карта, поиск, ОРФР" \
-  --script orfr --what "чистые ряды из выпусков ОРФР в CSV"
+  --title "CBR Core" --description "Сайт и API ЦБ: карта, поиск, ОРФР" --script orfr
 ```
 
 #### Параметры new.php
@@ -74,14 +76,13 @@ php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
 | `--dir` | Каталог репо | `~/MyProjects/<name>` |
 | `--title` | Заголовок `# …` | Name Case из name |
 | `--description` | Описание скилла для модели (frontmatter) | заглушка |
-| `--what` | Что делает скрипт (заголовки в SKILL/README/AGENTS, docblock) | «что делает скрипт» |
-| `--script` | Имя основного скрипта | `main` |
+| `--script` | Имя скрипта; повторяется для каждого. Без него — скилл без кода | нет |
 | `--owner` | Владелец GitHub | `prikotov` |
 
 #### Результаты new.php
 
-- stdout — JSON: `ok`, `dir`, `files[]`, `placeholders_left` (по файлам),
-  `next[]` — что делать дальше.
+- stdout — JSON: `ok`, `dir`, `scripts[]`, `files[]`, `placeholders_left`
+  (по файлам), `next[]` — что делать дальше.
 - Существующий непустой каталог не трогается: код выхода 1.
 - `git init`, коммит и создание репо на GitHub скрипт не делает — это шаги
   из `next[]`.
@@ -105,7 +106,7 @@ php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
 ## Как устроено
 
 - Шаблоны в `assets/` с плейсхолдерами `{{…}}`; `new.php` подставляет
-  известные (name, title, what, script, клиент) и возвращает оставшиеся —
+  известные (name, title, скрипты, клиент) и возвращает оставшиеся —
   их заполняет агент по правилам из SKILL.md.
 - Сгенерированный каркас сразу проходит `php -l` и `tests/run.php` —
   заготовки клиента и тестов рабочие, не пустышки.
