@@ -56,45 +56,12 @@ ln -s /path/to/skill-creator .agents/skills/skill-creator
 
 ## Использование
 
-Команды ниже — от каталога с SKILL.md: из корня репо скилла или от каталога,
-куда он установлен в проект.
+Скилл работает через агента: после установки он узнаёт о нём из каталога
+skills и применяет, когда получает подходящий запрос. Примеры запросов:
 
-### new.php — каркас нового скилла
-
-```bash
-# Скилл-инструкция без скриптов
-php scripts/new.php --name prompt-review
-
-# Скилл с двумя скриптами
-php scripts/new.php --name moex-site-core --script map --script search
-
-# Явный каталог, заголовок, описание для модели
-php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
-  --title "CBR Core" --description "Сайт и API ЦБ: карта, поиск, ОРФР" --script orfr
 ```
-
-#### Параметры new.php
-
-| Опция | Описание | По умолчанию |
-|-------|----------|--------------|
-| `--name` | Имя скилла, kebab-case (обязательно) | — |
-| `--dir` | Каталог репо | `~/MyProjects/<name>` |
-| `--title` | Заголовок `# …` | Name Case из name |
-| `--description` | Описание скилла для модели (frontmatter) | заглушка |
-| `--license` | Лицензия: `MIT` (файл LICENSE) или `none` | `MIT` |
-
-#### Результаты new.php
-
-- stdout — JSON: `ok`, `dir`, `files[]`, `placeholders_left` (по файлам),
-  `next[]`. Плейсхолдеры `{{…}}` — задания агенту: заполнить по правилам
-  SKILL.md; `tests/run.php` каркаса не пройдёт, пока они остаются.
-- Существующий непустой каталог не трогается: код выхода 1.
-- `git init`, коммит и создание репо на GitHub скрипт не делает — это шаги
-  из `next[]`.
-
-### Через агента
-
-После установки skill агент автоматически узнаёт о нём. Примеры запросов:
+Сделай скилл из /home/dp/MyProjects/TInvestSkills/docs/SKILL-CREATION.md
+```
 
 ```
 Переведи .agents/skills/moex-site-core/SKILL.md на php и оформи
@@ -103,6 +70,11 @@ php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
 ```
 Проверь SKILL.md в cbr-core по чеклисту skill-creator и скажи, что перенести в references
 ```
+
+Что делает агент по такому запросу: разворачивает каркас командой
+`php scripts/new.php --name <name> [--script <name>]…`, заполняет плейсхолдеры
+по правилам SKILL.md, доводит `tests/run.php` каркаса до зелёного, оформляет
+репо к публикации. Параметры `new.php` — в SKILL.md, раздел «Запуск».
 
 ## Конфиг и секреты
 
