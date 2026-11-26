@@ -80,8 +80,9 @@ php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
 
 #### Результаты new.php
 
-- stdout — JSON: `ok`, `dir`, `scripts[]`, `files[]`, `placeholders_left`
-  (по файлам), `next[]` — что делать дальше.
+- stdout — JSON: `ok`, `dir`, `files[]`, `placeholders_left` (по файлам),
+  `next[]`. Плейсхолдеры `{{…}}` — задания агенту: заполнить по правилам
+  SKILL.md; `tests/run.php` каркаса не пройдёт, пока они остаются.
 - Существующий непустой каталог не трогается: код выхода 1.
 - `git init`, коммит и создание репо на GitHub скрипт не делает — это шаги
   из `next[]`.
