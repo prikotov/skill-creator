@@ -1,6 +1,6 @@
 <?php
 /**
- * skill-creator: каркас нового скилла по нашим правилам.
+ * skill-creator: каркас нового скилла.
  *
  *   php scripts/new.php --name my-skill --dir /home/dp/MyProjects/my-skill \
  *       [--title "My Skill"] [--description "..."] [--what "..."] [--owner prikotov] [--script main]
