@@ -76,8 +76,6 @@ php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
 | `--dir` | Каталог репо | `~/MyProjects/<name>` |
 | `--title` | Заголовок `# …` | Name Case из name |
 | `--description` | Описание скилла для модели (frontmatter) | заглушка |
-| `--script` | Имя скрипта; повторяется для каждого. Без него — скилл без кода | нет |
-| `--owner` | Владелец GitHub | `prikotov` |
 
 #### Результаты new.php
 
