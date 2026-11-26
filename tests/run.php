@@ -94,6 +94,16 @@ check(lintOk($dirMany . '/scripts/search.php'), 'many: php -l search.php');
 $d = runNew($root, $tmp . '/y', ['--name', 'ok-name', '--script', 'Bad'], $rc);
 check($rc === 1, 'new: --script не kebab-case — код 1');
 
+// 5а. лицензия: none → без файла LICENSE, без раздела; MIT → файл и frontmatter
+$dirNoLic = $tmp . '/no-license';
+$d = runNew($root, $dirNoLic, ['--name', 'no-license', '--license', 'none'], $rc);
+check($rc === 0 && !is_file($dirNoLic . '/LICENSE'), 'license none: без LICENSE');
+$nl = (string)file_get_contents($dirNoLic . '/SKILL.md');
+check(!str_contains($nl, 'license:'), 'license none: frontmatter без license');
+check(!str_contains((string)file_get_contents($dirNoLic . '/README.md'), '## Лицензия'), 'license none: README без раздела');
+check(str_contains((string)file_get_contents($dir . '/SKILL.md'), 'license: MIT'), 'license MIT: frontmatter');
+check(str_contains((string)file_get_contents($dir . '/README.md'), '## Лицензия'), 'license MIT: раздел README');
+
 // 6. markdown-гигиена своих документов: маркер списка только с начала строки
 foreach (['SKILL.md', 'README.md', 'references/rules.md', 'AGENTS.md'] as $doc) {
     $lines = file($root . '/' . $doc, FILE_IGNORE_NEW_LINES);

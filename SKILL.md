@@ -46,6 +46,7 @@ php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
 | `--dir` | Каталог репо | путь | `~/MyProjects/<name>` |
 | `--title` | Заголовок `# …` | строка | Name Case из name |
 | `--description` | Описание скилла для модели (frontmatter) | строка | заглушка |
+| `--license` | Лицензия: `MIT` (файл LICENSE) или `none` | `MIT`, `none` | `MIT` |
 
 ## Результат
 
