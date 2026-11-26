@@ -24,8 +24,8 @@ SKILL (навык) — переносимый модуль (инструкции
 
 ## Запуск
 
-Из корня репо скилла; после установки в проект путь будет
-`.agents/skills/skill-creator/scripts/`.
+Пути — от каталога с SKILL.md (при установке он может быть любым:
+`.agents/skills/skill-creator`, `docs/agents/skills/skill-creator` и т. п.).
 
 ```bash
 # Новый скилл в ~/MyProjects/<name>

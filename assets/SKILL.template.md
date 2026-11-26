@@ -15,8 +15,7 @@ Skill для AI-агентов: {{one-line}}.
 
 ## Запуск
 
-Из корня репо скилла; после установки в проект путь будет
-`.agents/skills/{{name}}/scripts/`.
+Пути — от каталога с SKILL.md.
 
 ```bash
 # {{what-example-1}}
