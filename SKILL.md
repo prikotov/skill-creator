@@ -24,8 +24,7 @@ SKILL (навык) — переносимый модуль (инструкции
 
 ## Запуск
 
-Пути — от каталога с SKILL.md (при установке он может быть любым:
-`.agents/skills/skill-creator`, `docs/agents/skills/skill-creator` и т. п.).
+Пути — от каталога с SKILL.md.
 
 ```bash
 # Новый скилл в ~/MyProjects/<name>
