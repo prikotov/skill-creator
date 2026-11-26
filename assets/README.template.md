@@ -83,4 +83,4 @@ php scripts/{{script}}.php
 
 ## Лицензия
 
-MIT
+{{license}}

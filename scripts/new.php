@@ -3,7 +3,7 @@
  * skill-creator: каркас нового скилла.
  *
  *   php scripts/new.php --name my-skill [--dir /path] [--title ".."] [--description ".."]
- *       [--owner prikotov] [--script name1] [--script name2]...
+ *       [--owner prikotov] [--license MIT|none|SPDX-ID] [--script name1] [--script name2]...
  *
  * Скрипты не обязательны: скилл может быть только инструкцией. Каждый
  * --script добавляет scripts/<name>.php с заготовкой; при наличии хотя бы
@@ -60,7 +60,13 @@ function render(string $tpl, array $map, array $scripts): string
     }
     // строка таблицы-заглушки без скриптов → убрать пустые строки-остатки
     $t = preg_replace("~\n{3,}~", "\n\n", $t);
-    return strtr($t, $map);
+    $t = strtr($t, $map);
+    // без лицензии: строка frontmatter и раздел README исчезают
+    if (($map['{{license}}'] ?? '') === 'none') {
+        $t = preg_replace('~^license: none\n~m', '', $t);
+        $t = preg_replace('~^## Лицензия\n\nnone\n?~m', '', $t);
+    }
+    return $t;
 }
 
 $opt = argv($argv);
@@ -79,6 +85,7 @@ if (is_dir($dir) && count(scandir($dir)) > 2) {
 $title = $opt['title'] ?? ucwords(str_replace('-', ' ', $name));
 $description = $opt['description'] ?? 'Что делает skill (кратко)';
 $owner = $opt['owner'] ?? 'prikotov';
+$license = $opt['license'] ?? 'MIT';
 $rawScripts = isset($opt['script']) ? (array)$opt['script'] : [];
 $scripts = [];
 foreach ($rawScripts as $rs) {
@@ -95,6 +102,7 @@ $map = [
     '{{description}}' => $description,
     '{{Client}}' => $client,
     '{{owner}}' => $owner,
+    '{{license}}' => $license,
 ];
 
 $created = [];
@@ -110,7 +118,11 @@ $put('SKILL.md', render('SKILL.template.md', $map, $scripts));
 $put('README.md', render('README.template.md', $map, $scripts));
 $put('AGENTS.md', render('AGENTS.template.md', $map, $scripts));
 $put('.github/workflows/ci.yml', render('ci.template.yml', $map, $scripts));
-$put('LICENSE', (string)file_get_contents(ROOT . '/LICENSE'));
+if ($license === 'MIT') {
+    $put('LICENSE', (string)file_get_contents(ROOT . '/LICENSE'));
+} elseif ($license !== 'none') {
+    $put('LICENSE', "License: {$license}\n\nТекст лицензии добавьте вручную.\n");
+}
 $put('references/api.md', "# Механика: {$title} (проверено " . date('Y-m-d') . ")\n\nТолько проверенные факты с датой: поведение сайтов/API, ловушки,\nотрицательные результаты. Сюда — не инструкция для агента (это SKILL.md).\n");
 $put('.gitignore', "# Cache & downloads\ndata/\n\n# IDE\n.vscode/\n.idea/\n*.swp\n*~\n\n# OS\n.DS_Store\nThumbs.db\n");
 

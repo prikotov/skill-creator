@@ -1,7 +1,7 @@
 ---
 name: {{name}}
 description: {{description}}
-license: MIT
+license: {{license}}
 ---
 
 # {{Title}}
