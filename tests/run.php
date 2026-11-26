@@ -66,6 +66,19 @@ foreach (glob($root . '/assets/*') as $tpl) {
     }
 }
 
+// 6. markdown-гигиена своих документов: маркер списка только с начала строки
+foreach (['SKILL.md', 'README.md', 'references/rules.md', 'AGENTS.md'] as $doc) {
+    $lines = file($root . '/' . $doc, FILE_IGNORE_NEW_LINES);
+    $bad = 0;
+    foreach ($lines as $ln) {
+        // строка списка начинается с "- " (с отступом ≤2) — иначе это склейка
+        if (preg_match('~^\s*- [A-ZА-ЯЁ]~u', $ln) === 0 && preg_match('~[.)»]\s+- [A-ZА-ЯЁ]~u', $ln) === 1) {
+            $bad++;
+        }
+    }
+    check($bad === 0, "md: склеенный маркер списка в {$doc} ({$bad})");
+}
+
 // уборка
 exec('rm -rf ' . escapeshellarg($tmp));
 
