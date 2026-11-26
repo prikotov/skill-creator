@@ -58,12 +58,12 @@ ln -s /path/to/skill-creator .agents/skills/skill-creator
 
 ```bash
 # Скилл в ~/MyProjects/<name>
-php scripts/new.php --name my-api-core --what "доступ к API my-service"
+php scripts/new.php --name my-api-core
 
-# Явный каталог, заголовок, описание для модели, имя скрипта
+# Явный каталог, заголовок, описание для модели, имя скрипта и что он делает
 php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
-  --title "CBR Core" --description "API и сайт ЦБ: карта, поиск, ОРФР" \
-  --what "доступ к данным ЦБ" --script orfr
+  --title "CBR Core" --description "Сайт и API ЦБ: карта, поиск, ОРФР" \
+  --script orfr --what "чистые ряды из выпусков ОРФР в CSV"
 ```
 
 #### Параметры new.php
@@ -73,8 +73,8 @@ php scripts/new.php --name cbr-core --dir /home/dp/MyProjects/cbr-core \
 | `--name` | Имя скилла, kebab-case (обязательно) | — |
 | `--dir` | Каталог репо | `~/MyProjects/<name>` |
 | `--title` | Заголовок `# …` | Name Case из name |
-| `--description` | Описание для модели: когда использовать | заглушка |
-| `--what` | Чем занимается скрипт | «что делает скрипт» |
+| `--description` | Описание скилла для модели (frontmatter) | заглушка |
+| `--what` | Что делает скрипт (заголовки в SKILL/README/AGENTS, docblock) | «что делает скрипт» |
 | `--script` | Имя основного скрипта | `main` |
 | `--owner` | Владелец GitHub | `prikotov` |
 
