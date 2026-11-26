@@ -6,42 +6,51 @@ license: MIT
 
 # {{Title}}
 
-Skill для AI-агентов: {{one-line}}.
+Skill для AI-агентов.
 
 ## Когда использовать
 
 - {{situation-1}}
 - {{situation-2}}
 
-## Запуск
+## Как использовать
 
 Пути — от каталога с SKILL.md.
 
-```bash
-# {{what-example-1}}
-php scripts/{{script}}.php
+{{#scripts}}
+**Шаг N: {{what}}**
 
-# {{what-example-2}}
-php scripts/{{script}}.php {{options-example}}
+```bash
+php scripts/{{script}}.php [опции]
 ```
 
-### Опции {{script}}.php
+Опции:
 
 | Опция | Описание | Значения | По умолчанию |
 |-------|----------|----------|--------------|
-| `--{{opt}}` | {{description}} | {{values}} | {{default}} |
+| `--opt` | {{opt-description}} | {{values}} | {{default}} |
 
-## Результат
+Примеры:
 
-stdout — JSON; прогресс и предупреждения — в stderr. Код выхода 0/1.
+```bash
+# {{example-1}}
+php scripts/{{script}}.php
+```
+
+Результат:
 
 | Поле | Что значит |
 |------|------------|
 | `ok` | Запрос прошёл |
 | `{{field}}` | {{meaning}} |
 
+{{/scripts}}
+## Результат
+
+stdout — JSON; прогресс и предупреждения — в stderr. Код выхода 0/1.
+Что и где получаем: {{result}}
+
 ## Правила агента
 
 - {{rule-1}}
 - {{rule-2}}
-- Механика API и ловушки — `references/api.md`, не здесь.
