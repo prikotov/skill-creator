@@ -1,10 +1,11 @@
-# От SKILL-CREATION.md к skill-creator
+# Правила skill-creator: происхождение
 
-Основа — `TInvestSkills/docs/SKILL-CREATION.md` (инструкция по созданию
-навыков). Skill-creator переносит её в skill и дополняет тем, что накопилось
-в web-research-fallback, moex-site-core, cbr-core.
+SKILL.md этого репо — перенесённая в skill инструкция по созданию навыков
+`TInvestSkills/docs/SKILL-CREATION.md`: структура, frontmatter, разделы,
+формат шага, чеклист. Документ отдельно больше не нужен — правки вносят сюда.
+Ниже — что добавлено практикой web-research-fallback, moex-site-core, cbr-core.
 
-## Что взято из SKILL-CREATION.md без изменений
+## Что из исходной инструкции
 
 - SKILL — переносимый модуль (инструкции + скрипты), который агент загружает
   по мере необходимости.
