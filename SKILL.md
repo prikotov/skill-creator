@@ -167,7 +167,13 @@ license: MIT
 
 - stdout — JSON-контракт, прогресс и предупреждения — в stderr, код выхода 0/1.
 - PHP 8.4+, ext-curl, без composer. Общий код — в корне репо, скрипты — в `scripts/`.
-- Секреты — свой конфиг-дотфайл (в `.gitignore`, права 600) или рантайм-env.
+- Секреты — свой конфиг-дотфайл или рантайм-env.
+- Конфиг — дотфайл в корне репо скилла: `.<аббревиатура скилла>_config.json`
+  (web-research-fallback → `.wrf_config.json`, knowledge-extraction →
+  `.task_config.json`); для токенов — `.<аббревиатура>_token.json`. Файл в
+  `.gitignore`, права 600; в репо — пример `.…_config.example.json`.
+- Переменная окружения — от имени скилла верхним регистром:
+  `WEB_RESEARCH_PROXY`, `KNOWLEDGE_EXTRACTION_WORKSPACE`.
 
 ## Публикация
 
