@@ -2,59 +2,62 @@
 name: {{name}}
 description: {{description}}
 license: {{license}}
+# необязательное поле; нет зависимостей — удали строку
+depends_on: []
+package: https://github.com/{{owner}}/{{name}}
+version: 0.1.0
+updated: {{updated}}
+# pending; пересчитай после заполнения плейсхолдеров
+hash: pending
 ---
 
 # {{Title}}
 
-Skill для AI-агентов.
+Этот навык для {{for-whom}}.
 
 ## Когда использовать
 
 - {{situation-1}}
 - {{situation-2}}
+- {{situation-3}}
 
 ## Как использовать
 
-Пути — от каталога с SKILL.md. Шаги — алгоритм агента; шаг без скрипта —
-просто инструкция.
+`<skill-dir>` — каталог этого SKILL.md, подставь его в команду.
 
 **Шаг 1: {{step-1}}**
 
 {{instruction-1}}
-{{#scripts}}
-**Шаг N: {{what}}**
 
 ```bash
-php scripts/{{script}}.php [опции]
+php <skill-dir>/scripts/{{script-1}}.php --{{option-1}} {{option-1-value}}
 ```
-
-Опции:
 
 | Опция | Описание | Значения | По умолчанию |
 |-------|----------|----------|--------------|
-| `--opt` | {{opt-description}} | {{values}} | {{default}} |
+| `--{{option-1}}` | {{option-1-desc}} | {{option-1-values}} | {{option-1-default}} |
 
-Примеры:
+Результат шага: {{step-1-result}}.
 
 ```bash
-# {{example-1}}
-php scripts/{{script}}.php
+# {{example-1-comment}}
+php <skill-dir>/scripts/{{script-1}}.php {{example-1-args}}
 ```
 
-Результат:
+**Шаг 2: {{step-2}}**
 
-| Поле | Что значит |
-|------|------------|
-| `ok` | Запрос прошёл |
-| `{{field}}` | {{meaning}} |
+{{instruction-2}}
 
-{{/scripts}}
 ## Результат
 
 stdout — JSON; прогресс и предупреждения — в stderr. Код выхода 0/1.
-Что и где получаем: {{result}}
+Что и где получаем: {{result}}.
 
-## Правила агента
+| Поле | Что значит |
+|------|------------|
+| {{field-1}} | {{field-1-desc}} |
+
+## Правила для агента
 
 - {{rule-1}}
-- {{rule-2}}
+- Действия при выходе за границы навыка: {{rule-out-of-bounds}}.

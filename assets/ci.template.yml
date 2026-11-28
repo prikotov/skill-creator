@@ -15,10 +15,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: curl
       - name: Check PHP syntax
-        run: |
-{{#scripts}}          php -l scripts/{{script}}.php
-{{/scripts}}          php -l tests/run.php
+        run: php -l tests/run.php
       - name: Run offline tests
         run: php tests/run.php
