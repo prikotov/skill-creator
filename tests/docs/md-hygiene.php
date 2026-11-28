@@ -10,7 +10,7 @@ require_once __DIR__ . '/../lib.php';
 
 $root = dirname(__DIR__, 2);
 
-foreach (['SKILL.md', 'README.md', 'references/reports.md', 'references/publish.md', 'references/audit.md', 'AGENTS.md'] as $doc) {
+foreach (['SKILL.md', 'README.md', 'references/reports.md', 'references/publish.md', 'references/audit.md', 'references/similar-solutions.md', 'AGENTS.md'] as $doc) {
     $lines = file($root . '/' . $doc, FILE_IGNORE_NEW_LINES);
     $bad = 0;
     foreach ($lines as $ln) {
