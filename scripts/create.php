@@ -1,15 +1,14 @@
 <?php
 /**
- * skill-creator: каркас нового скилла.
+ * skill-creator: каркас нового навыка.
  *
  *   php scripts/create.php --name my-skill --dir /path/to/my-skill [--title ".."] [--description ".."]
- *       [--owner prikotov] [--license MIT|none|SPDX-ID] [--script name1] [--script name2]...
+ *       [--owner prikotov] [--license MIT|none|SPDX-ID]
  *
- * Скрипты не обязательны: скилл может быть только инструкцией. Каждый
- * --script добавляет scripts/<name>.php с заготовкой; при наличии хотя бы
- * одного скрипта создаётся общий клиент <Name>Client.php и tests/run.php
- * (проверяет клиент и структуру SKILL.md). Существующий непустой каталог
- * не трогает (код выхода 1). git init/commit не делает.
+ * Создаёт структуру и документацию навыка: SKILL.md, README, AGENTS.md,
+ * CHANGELOG.md, тесты, CI. Скрипты и references/ агент добавляет сам по мере
+ * надобности. Существующий непустой каталог не трогает (код выхода 1).
+ * git init/commit не делает.
  * stdout — JSON: файлы, оставшиеся плейсхолдеры, следующие шаги.
  */
 declare(strict_types=1);
@@ -42,23 +41,10 @@ function fail(string $msg): never
     exit(1);
 }
 
-/** Рендер шаблона с подстановкой; блоки {{#scripts}}…{{/scripts}} повторяются по скриптам. */
-function render(string $tpl, array $map, array $scripts): string
+/** Рендер шаблона с подстановкой плейсхолдеров. */
+function render(string $tpl, array $map): string
 {
     $t = file_get_contents(ROOT . '/assets/' . $tpl);
-    // повторяемый блок: {{#scripts}}…{{/scripts}} — по одному разу на скрипт;
-    // без скриптов блок исчезает целиком (вместе с строкой, где стоит маркер)
-    while (preg_match('~\{\{#scripts\}\}(.*?)\{\{/scripts\}\}~s', $t, $m)) {
-        $rep = '';
-        foreach ($scripts as $sc) {
-            $rep .= strtr($m[1], ['{{script}}' => $sc['name'], '{{what}}' => $sc['what']]);
-        }
-        if ($rep === '' && str_contains($m[1], "|\n")) {
-            $rep = '';
-        }
-        $t = str_replace($m[0], $rep, $t);
-    }
-    // строка таблицы-заглушки без скриптов → убрать пустые строки-остатки
     $t = preg_replace("~\n{3,}~", "\n\n", $t);
     $t = strtr($t, $map);
     // без лицензии: строка frontmatter и раздел README исчезают
@@ -73,7 +59,10 @@ $opt = argv($argv);
 $name = $opt['name'] ?? '';
 $dir = $opt['dir'] ?? '';
 if (!preg_match('~^[a-z0-9]+(-[a-z0-9]+)*$~', $name)) {
-    fail('usage: php scripts/create.php --name kebab-case-name --dir /path/to/repo [--title ..] [--description ..] [--script name]...');
+    fail('usage: php scripts/create.php --name kebab-case-name --dir /path/to/repo [--title ..] [--description ..]');
+}
+if (strlen($name) > 64) {
+    fail('имя навыка длиннее 64 символов — лимит Agent Skills');
 }
 // --dir обязателен: дефолта нет, каркас не раскладывается «куда попало»
 if ($dir === '') {
@@ -84,15 +73,6 @@ $title = $opt['title'] ?? ucwords(str_replace('-', ' ', $name));
 $description = $opt['description'] ?? 'Что делает skill (кратко)';
 $owner = $opt['owner'] ?? 'prikotov';
 $license = $opt['license'] ?? 'MIT';
-$rawScripts = isset($opt['script']) ? (array)$opt['script'] : [];
-$scripts = [];
-foreach ($rawScripts as $rs) {
-    if (!preg_match('~^[a-z0-9]+(-[a-z0-9]+)*$~', $rs)) {
-        fail("--script: kebab-case, получено {$rs}");
-    }
-    $scripts[] = ['name' => $rs, 'what' => 'что делает ' . $rs];
-}
-$client = implode('', array_map(fn($p) => ucfirst($p), explode('-', $name))) . 'Client';
 
 // все аргументы проверены — цель должна создаться и быть доступна на запись,
 // иначе отказ до генерации файлов (не «ok: true» без файлов)
@@ -110,9 +90,9 @@ $map = [
     '{{name}}' => $name,
     '{{Title}}' => $title,
     '{{description}}' => $description,
-    '{{Client}}' => $client,
     '{{owner}}' => $owner,
     '{{license}}' => $license,
+    '{{updated}}' => gmdate('Y-m-d H:i') . ' UTC',
 ];
 
 $created = [];
@@ -128,145 +108,112 @@ $put = function (string $rel, string $text) use ($dir, &$created): void {
 };
 
 // Документы
-$put('SKILL.md', render('SKILL.template.md', $map, $scripts));
-$put('README.md', render('README.template.md', $map, $scripts));
-$put('AGENTS.md', render('AGENTS.template.md', $map, $scripts));
-$put('.github/workflows/ci.yml', render('ci.template.yml', $map, $scripts));
+$put('SKILL.md', render('SKILL.template.md', $map));
+$put('README.md', render('README.template.md', $map));
+$put('AGENTS.md', render('AGENTS.template.md', $map));
+$put('.github/workflows/ci.yml', render('ci.template.yml', $map));
 if ($license === 'MIT') {
     $put('LICENSE', (string)file_get_contents(ROOT . '/LICENSE'));
 } elseif ($license !== 'none') {
     $put('LICENSE', "License: {$license}\n\nТекст лицензии добавьте вручную.\n");
 }
-$put('references/api.md', "# Механика: {$title} (проверено " . date('Y-m-d') . ")\n\nТолько проверенные факты с датой: поведение сайтов/API, ловушки,\nотрицательные результаты. Сюда — не инструкция для агента (это SKILL.md).\n");
+$put('CHANGELOG.md', "# Изменения\n\n## 0.1.0 — " . gmdate('Y-m-d H:i') . " UTC\n\n- Первый выпуск.\n");
 $put('.gitignore', "# Cache & downloads\ndata/\n\n# IDE\n.vscode/\n.idea/\n*.swp\n*~\n\n# OS\n.DS_Store\nThumbs.db\n");
 
-// Тесты: всегда; с клиентом — плюс его проверки
-$testBody = '';
-$requires = '';
-if ($scripts !== []) {
-    $put("{$client}.php", <<<PHP
+// Тесты каркаса: helpers, структура SKILL.md, раннер. Честно падают на плейсхолдерах
+$put('tests/lib.php', <<<PHP
 <?php
 /**
- * {$title} — общий клиент скриптов.
- *
- * PHP 8.4+, ext-curl. Без composer.
+ * Общие помощники тестов {$name}. Подключается из tests/*.php.
  */
 declare(strict_types=1);
 
-final class {$client}
-{
-    public const UA = 'Mozilla/5.0 (research; {$name})';
+\$GLOBALS['TEST_FAIL'] = 0;
+\$GLOBALS['TEST_N'] = 0;
 
-    /** GET через curl. @return array{body:string,status:int} */
-    public static function fetch(string \$url, int \$timeout = 30): array
-    {
-        \$ch = curl_init(\$url);
-        curl_setopt_array(\$ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => \$timeout,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_USERAGENT => self::UA,
-        ]);
-        \$body = curl_exec(\$ch);
-        \$status = (int)curl_getinfo(\$ch, CURLINFO_RESPONSE_CODE);
-        \$err = curl_error(\$ch);
-        curl_close(\$ch);
-        return ['body' => is_string(\$body) ? \$body : \$err, 'status' => \$status];
-    }
-
-    /** Разбор аргументов: --key value + флаги. */
-    public static function argv(array \$argv, array \$flags = []): array
-    {
-        \$opt = [];
-        \$pos = [];
-        \$n = count(\$argv);
-        for (\$i = 1; \$i < \$n; \$i++) {
-            \$a = \$argv[\$i];
-            if (str_starts_with(\$a, '--')) {
-                \$k = substr(\$a, 2);
-                if (in_array(\$k, \$flags, true)) {
-                    \$opt[\$k] = true;
-                } else {
-                    \$opt[\$k] = \$argv[\$i + 1] ?? '';
-                    \$i++;
-                }
-            } else {
-                \$pos[] = \$a;
-            }
-        }
-        return [\$pos, \$opt];
-    }
-}
-
-PHP);
-    $requires = "require dirname(__DIR__) . '/{$client}.php';\n";
-    $testBody = <<<PHP
-
-// клиент
-[\$pos, \$opt] = {$client}::argv(['x', '--query', 'тест', '--flag'], ['flag']);
-check(\$opt['query'] === 'тест', 'argv: значение');
-check(\$opt['flag'] === true, 'argv: флаг');
-check(\$pos === [], 'argv: позиционных нет');
-
-PHP;
-    foreach ($scripts as $sc) {
-        $put("scripts/{$sc['name']}.php", <<<PHP
-<?php
-/**
- * {$title}, скрипт {$sc['name']}: {$sc['what']}.
- *
- *   php scripts/{$sc['name']}.php [--opt value]
- *
- * stdout — JSON; прогресс — в stderr. Код выхода 0/1.
- */
-declare(strict_types=1);
-
-require dirname(__DIR__) . '/{$client}.php';
-
-\$opt = {$client}::argv(\$argv);
-\$result = ['ok' => true, 'items' => []];
-echo json_encode(\$result, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), "\\n";
-
-PHP);
-    }
-}
-
-$put('tests/run.php', <<<PHP
-<?php
-/**
- * Офлайн-тесты {$name}: структура SKILL.md и чистые функции; сеть не трогают.
- * Запуск: php tests/run.php. Код выхода 0/1.
- */
-declare(strict_types=1);
-
-{$requires}\$fail = 0;
-\$n = 0;
 function check(bool \$cond, string \$label): void
 {
-    global \$fail, \$n;
-    \$n++;
+    \$GLOBALS['TEST_N']++;
     if (!\$cond) {
-        \$fail++;
+        \$GLOBALS['TEST_FAIL']++;
         fwrite(STDERR, "FAIL: {\$label}\\n");
     }
 }
 
-// SKILL.md: обязательные разделы
-\$skill = (string)file_get_contents(dirname(__DIR__) . '/SKILL.md');
-check((bool)preg_match('/^---\\nname: [a-z0-9-]+\\ndescription: .+\\n(license: .+\\n)?---\\n/', \$skill), 'SKILL.md: frontmatter');
-foreach (['Когда использовать', 'Результат', 'Правила агента'] as \$h) {
-    check(str_contains(\$skill, '## ' . \$h), "SKILL.md: раздел {\$h}");
+function testFinish(string \$label): never
+{
+    \$fail = \$GLOBALS['TEST_FAIL'];
+    \$n = \$GLOBALS['TEST_N'];
+    if (\$fail > 0) {
+        fwrite(STDERR, "{\$label}: {\$fail} из {\$n} тестов упали\\n");
+        exit(1);
+    }
+    echo "{\$label}: OK, {\$n} тестов\\n";
+    exit(0);
 }
-check(!str_contains(\$skill, '{{'), 'SKILL.md: плейсхолдеры заполнены');
-{$testBody}
-if (\$fail > 0) {
-    fwrite(STDERR, "{\$fail} из {\$n} тестов упали\\n");
-    exit(1);
-}
-echo "OK: {\$n} тестов\\n";
 
 PHP);
+
+$put('tests/docs/skill-md.php', <<<PHP
+<?php
+/**
+ * Офлайн-тесты {$name}: структура SKILL.md. Сеть не трогают.
+ * Запуск: php tests/docs/skill-md.php. Код выхода 0/1.
+ */
+declare(strict_types=1);
+
+require_once __DIR__ . '/../lib.php';
+
+// SKILL.md: frontmatter и обязательные разделы
+\$skill = (string)file_get_contents(dirname(__DIR__, 2) . '/SKILL.md');
+\$lines = explode("\n", \$skill);
+check((\$lines[0] ?? '') === '---', 'SKILL.md: frontmatter открывается');
+check(str_starts_with(\$lines[1] ?? '', 'name: {$name}'), 'SKILL.md: name');
+check(str_starts_with(\$lines[2] ?? '', 'description: '), 'SKILL.md: description');
+check(array_search('---', array_slice(\$lines, 1, 20), true) !== false, 'SKILL.md: frontmatter закрывается');
+foreach (['Когда использовать', 'Как использовать', 'Результат', 'Правила для агента'] as \$h) {
+    check(str_contains(\$skill, '## ' . \$h), "SKILL.md: раздел {\$h}");
+}
+check(substr_count(\$skill, "\n") <= 500, 'SKILL.md: до 500 строк — рекомендация Agent Skills');
+check((bool)preg_match('/^hash: [0-9a-f]{64}\$/m', \$skill), 'SKILL.md: hash заполнен');
+check(!str_contains(\$skill, '{{'), 'SKILL.md: плейсхолдеры заполнены');
+
+testFinish('docs');
+
+PHP);
+
+$put('tests/run.php', <<<PHP
+<?php
+/**
+ * Раннер тестов {$name}: запускает тестовые файлы, сводит код выхода.
+ * Один тестовый файл — на один тестируемый: scripts/xxx.php → tests/xxx.php.
+ * Новый скрипт — новый tests/xxx.php и строка в списке \$tests.
+ * Запуск: php tests/run.php. Код выхода 0/1.
+ */
+declare(strict_types=1);
+
+\$tests = ['docs/skill-md.php'];
+\$fail = [];
+foreach (\$tests as \$t) {
+    \$o = [];
+    exec('php ' . escapeshellarg(__DIR__ . '/' . \$t) . ' 2>&1', \$o, \$rc);
+    echo (\$rc === 0 ? 'OK  ' : 'FAIL ') . \$t . "\n";
+    if (\$rc !== 0) {
+        \$fail[] = \$t;
+        echo implode("\n", \$o), "\n";
+    }
+}
+if (\$fail !== []) {
+    exit(1);
+}
+
+PHP);
+// hash каркаса считает scripts/hash.php — единственная реализация процедуры
+// из references/package.md
+exec('php ' . escapeshellarg(ROOT . '/scripts/hash.php') . ' --write ' . escapeshellarg($dir), $hashOut, $hashRc);
+if ($hashRc !== 0) {
+    fail('hash каркаса не посчитан: ' . implode('; ', $hashOut));
+}
 
 // оставшиеся плейсхолдеры
 $left = [];
@@ -280,18 +227,8 @@ foreach ($created as $rel) {
     }
 }
 
-$next = ["cd {$dir} && git init"];
-$next[] = $scripts === []
-    ? 'заполнить плейсхолдеры в SKILL.md/README.md (ситуации, правила)'
-    : 'заполнить плейсхолдеры в SKILL.md/README.md (ситуации, опции скриптов, правила)';
-$next[] = 'положить реальный пример запроса пользователя из истории сессии';
-$next[] = 'создать репо на GitHub, включить branch protection (PR обязателен)';
-
 echo json_encode([
     'ok' => true,
-    'dir' => $dir,
-    'scripts' => array_column($scripts, 'name'),
     'files' => $created,
     'placeholders_left' => $left,
-    'next' => $next,
 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), "\n";
